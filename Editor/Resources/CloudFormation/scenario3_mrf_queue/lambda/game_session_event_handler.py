@@ -27,8 +27,10 @@ def handler(event, context):
     dns_name = message['detail'].get('dnsName')
     port = message['detail'].get('port')
     game_session_arn = message['detail'].get('gameSessionArn')
+    player_sessions = message['detail'].get('placedPlayerSessions')
 
     game_session_placement_table_name = os.environ['GameSessionPlacementTableName']
+    matchmaking_request_table_name = os.environ['MatchmakingRequestTableName']
 
     dynamodb = boto3.resource('dynamodb')
     game_session_placement_table = dynamodb.Table(game_session_placement_table_name)
@@ -44,3 +46,37 @@ def handler(event, context):
             'ExpirationTime': start_time + DEFAULT_TTL_IN_SECONDS
         }
     )
+
+    for player_session in player_sessions:
+        update_player_session_id(matchmaking_request_table, player_session.get('playerId'), player_session.get('playerSessionId'))
+
+def update_player_session_id(matchmaking_request_table, player_id, player_session_id):
+
+    matchmaking_requests = matchmaking_request_table.query(
+        KeyConditionExpression=Key('PlayerId').eq(player_id),
+        ScanIndexForward=False
+    )
+
+    # TODO: Determine if 404 is correct here...
+    if matchmaking_requests['Count'] <= 0:
+        return {
+            'headers': {
+                'Content-Type': 'text/plain'
+            },
+            'statusCode': 404
+        }
+
+    latest_matchmaking_request = matchmaking_requests['Items'][0]
+
+    matchmaking_request_table.update_item(
+        Key={
+            'PlayerId': latest_matchmaking_request["PlayerId"],
+            'StartTime': latest_matchmaking_request["StartTime"]
+        },
+        AttributeUpdates={
+            'PlayerSessionId': {
+                'Value': player_session_id
+            }
+        }
+    )
+

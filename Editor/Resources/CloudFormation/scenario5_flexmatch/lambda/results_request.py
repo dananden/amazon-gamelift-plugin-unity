@@ -58,7 +58,7 @@ def handler(event, context):
         }
     elif matchmaking_request_status == MATCHMAKING_SUCCEEDED_STATUS:
         game_session_connection_info = \
-            dict((k, latest_matchmaking_request[k]) for k in ('IpAddress', 'Port', 'DnsName', 'GameSessionArn'))
+            dict((k, latest_matchmaking_request[k]) for k in ('IpAddress', 'Port', 'DnsName', 'PlayerSessionId', 'GameSessionArn'))
         print(game_session_connection_info)
         return {
             'body': json.dumps(game_session_connection_info),
