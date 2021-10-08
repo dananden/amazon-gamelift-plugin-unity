@@ -37,7 +37,7 @@ namespace AmazonGameLiftPlugin.Core.ApiGatewayManagement
                     Amazon.GameLift.Model.CreatePlayerSessionResponse createPlayerSessionResponse = await _amazonGameLiftClientWrapper.CreatePlayerSession(new Amazon.GameLift.Model.CreatePlayerSessionRequest
                     {
                         GameSessionId = oldestGameSession.GameSessionId,
-                        PlayerId = _playerIdPrefix + DateTime.Now.ToString()
+                        PlayerId = _playerIdPrefix + Guid.NewGuid().ToString()
                     });
                     Amazon.GameLift.Model.PlayerSession playerSession = createPlayerSessionResponse.PlayerSession;
 

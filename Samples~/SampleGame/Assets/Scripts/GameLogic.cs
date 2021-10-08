@@ -189,12 +189,12 @@ public class GameLogic : MonoBehaviour
             startGameScreen.SetInteractable(false);
             startGameScreen.SetResultText(string.Empty);
 
-            (bool success, string ip, int port) = await GameLift.GetConnectionInfo(cancellationToken);
+            (bool success, ConnectionInfo connectionInfo) = await GameLift.GetConnectionInfo(cancellationToken);
 
             if (success)
             {
-                GameliftStatus = ip != NetworkClient.LocalHost;
-                ClientConnected = _client.TryConnect(ip, port);
+                GameliftStatus = connectionInfo.IpAddress != NetworkClient.LocalHost;
+                ClientConnected = _client.TryConnect(connectionInfo);
             }
 
             if (!ClientConnected)

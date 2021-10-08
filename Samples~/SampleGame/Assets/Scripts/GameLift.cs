@@ -87,10 +87,8 @@ public class GameLift : MonoBehaviour
     public void StartServer(int port, string logFilePath = null)
     {
         _logger.Write($":) GAMELIFT StartServer at port {port}.");
-#if UNITY_SERVER
         ServerPort = port;
         _server.Start(port, logFilePath);
-#endif
     }
 
     public void TerminateGameSession(bool processEnding)
@@ -102,6 +100,11 @@ public class GameLift : MonoBehaviour
     public void TerminateServer()
     {
         Application.Quit();
+    }
+
+    public bool AcceptPlayerSession(string playerSessionId)
+    {
+        return _server.AcceptPlayerSession(playerSessionId);
     }
 
 #else
@@ -150,11 +153,11 @@ public class GameLift : MonoBehaviour
         _client.ClientCredentials = credentials;
     }
 
-    public async Task<(bool success, string ip, int port)> GetConnectionInfo(CancellationToken cancellationToken = default)
+    public async Task<(bool success, ConnectionInfo connection)> GetConnectionInfo(CancellationToken cancellationToken = default)
     {
         _logger.Write("CLIENT GetConnectionInfo()");
-        (bool success, string ip, int port) response = await _client.GetConnectionInfo(cancellationToken);
-        _logger.Write($"CLIENT CONNECT INFO: {response.ip}, {response.port} GL545");
+        (bool success, ConnectionInfo connectionInfo) response = await _client.GetConnectionInfo(cancellationToken);
+        _logger.Write($"CLIENT CONNECT INFO: {response.connectionInfo}");
         ConnectionChangedEvent?.Invoke(response.success);
         return response;
     }

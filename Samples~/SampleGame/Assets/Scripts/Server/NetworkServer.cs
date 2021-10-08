@@ -134,7 +134,7 @@ public class NetworkServer
 
         if (msgStr[0] == 'C')
         {
-            HandleConnect(playerIdx);
+            HandleConnect(playerIdx, json);
         }
 
         if (msgStr[0] == 'R')
@@ -158,11 +158,18 @@ public class NetworkServer
         }
     }
 
-    private void HandleConnect(int playerIdx)
+    private void HandleConnect(int playerIdx, string json)
     {
         _gl.Log.WriteLine("CONNECT: player index " + playerIdx);
         _gl.ZeroScore(playerIdx);
-        TransmitState();
+        var connectionInfo = ConnectionInfo.CreateFromSerial(json);
+        if (!ValidateConnectionRequest(connectionInfo))
+        {
+            HandleConnectionValidationFailure(playerIdx);
+        } else
+        {
+            TransmitState();
+        }
     }
 
     private void HandleReady(int playerIdx)
@@ -261,6 +268,23 @@ public class NetworkServer
         }
 
         _gl.Status.NumConnected = count;
+    }
+
+    private bool ValidateConnectionRequest(ConnectionInfo connectionInfo)
+    {
+        _gl.Log.WriteLine("Received Connection Request: " + connectionInfo);
+        // Consider the Connection Validated if the GameLift AcceptPlayerSession call suceeds
+        return _gl.GameLift.AcceptPlayerSession(connectionInfo.PlayerSessionId);
+    }
+
+    private void HandleConnectionValidationFailure(int playerIdx)
+    {
+        // Tell Client to Disconnect
+        Send("DISCONNECT", playerIdx, nameof(HandleConnectionValidationFailure));
+
+        _gl.Log.WriteLine("Connection Validation Failed for player " + playerIdx
+               + ". Verify the provided PlayerSessionId is correct.");
+        HandleDisconnect(playerIdx);
     }
 }
 
