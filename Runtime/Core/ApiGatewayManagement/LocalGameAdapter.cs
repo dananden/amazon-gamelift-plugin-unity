@@ -43,9 +43,9 @@ namespace AmazonGameLiftPlugin.Core.ApiGatewayManagement
 
                     var response = new GetGameConnectionResponse
                     {
-                        IpAddress = oldestGameSession.IpAddress,
-                        DnsName = oldestGameSession.DnsName,
-                        Port = oldestGameSession.Port.ToString(),
+                        IpAddress = playerSession.IpAddress,
+                        DnsName = playerSession.DnsName,
+                        Port = playerSession.Port.ToString(),
                         PlayerSessionId = playerSession.PlayerSessionId,
                         Ready = true
                     };

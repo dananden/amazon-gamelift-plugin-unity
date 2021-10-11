@@ -46,6 +46,9 @@ def handler(event, context):
         }
 
     latest_matchmaking_request = matchmaking_requests['Items'][0]
+
+    print(f'Current Matchmaking Request: {latest_matchmaking_request}')
+
     matchmaking_request_status = latest_matchmaking_request['TicketStatus']
 
     if matchmaking_request_status == MATCHMAKING_STARTED_STATUS:

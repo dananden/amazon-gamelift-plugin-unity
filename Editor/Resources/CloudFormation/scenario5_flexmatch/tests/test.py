@@ -6,8 +6,8 @@ import requests
 import json
 import time
 
-GAME_NAME = '<REPLACE_WITH_YOUR_GAME_NAME>'
-REGION = '<REPLACE_WITH_YOUR_REGION>'
+GAME_NAME = 'PlayerTest0'
+REGION = 'us-west-2'
 
 USER_POOL_NAME = GAME_NAME + 'UserPool'
 USER_POOL_CLIENT_NAME = GAME_NAME + 'UserPoolClient'
@@ -144,6 +144,8 @@ def main():
                         f"Expect {game_connection_info['DnsName']} to contain '{REGION_US_WEST_2}'"
                     assert expected_game_session_region in game_connection_info['GameSessionArn'], \
                         f"Expect {game_connection_info['GameSessionArn']} to contain '{expected_game_session_region}'"
+                    assert "psess-" in game_connection_info['PlayerSessionId'], \
+                        f"Expect {game_connection_info['PlayerSessionId']} to contain 'psess-'"
                     print("Verified game connection info:", game_connection_info)
                     verified_players += 1
                 print(f"{verified_players} players' game sessions verified")
