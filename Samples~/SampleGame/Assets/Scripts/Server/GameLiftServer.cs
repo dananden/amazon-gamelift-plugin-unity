@@ -114,6 +114,30 @@ public class GameLiftServer
         }
     }
 
+    public bool RemovePlayerSession(string playerSessionId)
+    {
+        try
+        {
+            GenericOutcome outcome = GameLiftServerAPI.RemovePlayerSession(playerSessionId);
+
+            if (outcome.Success)
+            {
+                _logger.Write(":) Removed Player Session: " + playerSessionId);
+                return true;
+            }
+            else
+            {
+                _logger.Write(":( REMOVE PLAYER SESSION FAILED. RemovePlayerSession() returned " + outcome.Error.ToString());
+                return false;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.Write(":( REMOVE PLAYER SESSION FAILED. RemovePlayerSession() exception " + Environment.NewLine + e.Message);
+            return false;
+        }
+    }
+
     private void ProcessReady()
     {
         try

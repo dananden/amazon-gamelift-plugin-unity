@@ -12,6 +12,7 @@ public class NetworkServer
     private readonly TcpListener _listener;
     private readonly TcpClient[] _clients = { null, null, null, null };
     private readonly bool[] _ready = { false, false, false, false };
+    private readonly string[] _playerSessionIds = { null, null, null, null };
 
     public NetworkServer(GameLogic gl, int port)
     {
@@ -81,7 +82,7 @@ public class NetworkServer
         _listener.Stop();
 
         // warn GameLift
-        if (_gl.GameLift != null && _gl.GameliftStatus)
+        if (_gl.GameLift != null && _gl.GameLift.IsConnected)
         {
             _gl.GameLift.TerminateGameSession(true);
         }
@@ -168,6 +169,7 @@ public class NetworkServer
             HandleConnectionValidationFailure(playerIdx);
         } else
         {
+            _playerSessionIds[playerIdx] = connectionInfo.PlayerSessionId;
             TransmitState();
         }
     }
@@ -209,7 +211,7 @@ public class NetworkServer
 
         _gl.EndGame();
 
-        if (_gl.GameLift != null && _gl.GameliftStatus)
+        if (_gl.GameLift != null && _gl.GameLift.IsConnected)
         {
             _gl.GameLift.TerminateGameSession(false);
         }
@@ -234,6 +236,14 @@ public class NetworkServer
     private void DisconnectPlayer(int playerIdx)
     {
         _gl.Log.WriteLine("DISCONNECT: Player " + playerIdx);
+
+        // Tell GameLift the player has disconnected
+        if (_playerSessionIds[playerIdx] != null)
+        {
+            _gl.GameLift.RemovePlayerSession(_playerSessionIds[playerIdx]);
+            _playerSessionIds[playerIdx] = null;
+        }
+
         // remove the client and close the connection
         TcpClient client = _clients[playerIdx];
 

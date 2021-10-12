@@ -103,6 +103,8 @@ public class GameLogic : MonoBehaviour
         Render = new Render();
 #if UNITY_SERVER
         _server = new NetworkServer(this, GameLift.ServerPort);
+        // if running server, GameLift is already initialized before GameLogic.Start is called
+        GameliftStatus = GameLift.IsConnected;
         _logger.Write(":) LISTENING ON PORT " + GameLift.ServerPort);
 #else
         _client = new NetworkClient(this);

@@ -33,6 +33,8 @@ public class GameLift : MonoBehaviour
 
     public int ServerPort { get; private set; }
 
+    public bool IsConnected { get; set;}
+
     private bool MyRemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
     {
         bool isOk = true;
@@ -66,6 +68,7 @@ public class GameLift : MonoBehaviour
         _logger.Write(":) GAMELIFT AWAKE");
         // Allow Unity to validate HTTPS SSL certificates; http://stackoverflow.com/questions/4926676
         ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
+        ConnectionChangedEvent.AddListener(value => IsConnected = value);
 #if UNITY_SERVER
         _logger.Write(":) I AM SERVER");
         _server = new GameLiftServer(this, _logger);
@@ -105,6 +108,11 @@ public class GameLift : MonoBehaviour
     public bool AcceptPlayerSession(string playerSessionId)
     {
         return _server.AcceptPlayerSession(playerSessionId);
+    }
+
+    public bool RemovePlayerSession(string playerSessionId)
+    {
+        return _server.RemovePlayerSession(playerSessionId);
     }
 
 #else
